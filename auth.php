@@ -46,15 +46,19 @@ if(!$jwt->isValid($token)){
     echo json_encode(['message' => 'Token invalide']);
     exit;
 }
-echo $token; //token vide contient pas le header et le payload pq?
+//echo $token;                    affiche correctement
+//echo json_encode($jwt->getPayload($token)); ca s'affiche
+
 
 
 // On vérifie la signature
 if(!$jwt->check($token, SECRET)){
+
     http_response_code(403);
     echo json_encode(['message' => 'Le token est invalidee']);
     exit;
 }
+
 
 // On vérifie l'expiration
 if($jwt->isExpired($token)){
