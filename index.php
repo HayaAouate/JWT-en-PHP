@@ -20,6 +20,6 @@ $payload = [
 
 $jwt = new JWT();
 
-$token= $jwt->generate($header,$payload,SECRET);
+$token= $jwt->generateJWT($header,$payload,SECRET);
 
 echo $token;

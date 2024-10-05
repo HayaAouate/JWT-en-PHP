@@ -9,34 +9,36 @@ class JWT
      * @param int $validity Durée de validité (en secondes)
      * @return string Token
      */
-    public function generate(array $header, array $payload, string $secret, int $validity = 86400): string
+    public function generateJWT(array $header, array $payload, string $secret, int $validity =  86400): ?string
     {
-        if($validity > 0){
-            $now = new DateTime();
+        if ($validity > 0) {
+            $now = new \DateTime();
             $expiration = $now->getTimestamp() + $validity;
             $payload['iat'] = $now->getTimestamp();
             $payload['exp'] = $expiration;
         }
 
-        // On encode en base64
+        //On encode en base 64:
         $base64Header = base64_encode(json_encode($header));
+        //Si on dmd un strg ms qu on a un array a la place remplacer par un json_encode la var
         $base64Payload = base64_encode(json_encode($payload));
 
-        // On "nettoie" les valeurs encodées
-        // On retire les +, / et =
-        $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], $base64Header);
-        $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], $base64Payload);
 
-        // On génère la signature
-        $secret = base64_encode($secret);
+        //On retire les / et =
+        $base64Header = str_replace(['+', '/', '='], ['-', '_', ''],
+            $base64Header);
+        $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''],
+            $base64Payload);
+
+        //Correspond a la clé secret qui va permettre de ns identifier, a mettre ds jwt.io
+//        $secret = base64_encode($key);
+//        echo $secret ;
+
         $signature = hash_hmac('sha256', $base64Header . '.' . $base64Payload, $secret, true);
+        $base64signature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+        // On nettoie la signature
 
-        $base64Signature = base64_encode($signature);
-
-        $signature = str_replace(['+', '/', '='], ['-', '_', ''], $base64Signature);
-
-        // On crée le token
-        $jwt = $base64Header . '.' . $base64Payload . '.' . $signature;
+        $jwt = $base64Header . '.' . $base64Payload . '.' . $base64signature;
 
         return $jwt;
     }
